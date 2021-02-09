@@ -108,6 +108,7 @@ class App extends Component {
             .then(response => response.json())
             .then(count => {
               this.setState(Object.assign(this.state.user, { entries: count}))
+              // this.setState(Object.assign(this.state.links, { links: [] }))
             })
             .catch(console.log)
 
@@ -138,6 +139,7 @@ class App extends Component {
           ? <div>
               <Logo />
               <UserLinks
+                loadLinks={this.loadLinks}
                 userLinks={this.state.links}
               />
               <Rank
