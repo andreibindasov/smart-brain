@@ -3,10 +3,12 @@
     flex-direction: row;
     /* align-items: center; */
     justify-content: center;
+    flex-wrap:wrap;
     
 }
 
 .user-link__image {
+    box-sizing: border-box;
     max-width: 4.5rem;
     height: auto;
     border: 1px solid black;

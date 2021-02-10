@@ -107,8 +107,15 @@ class App extends Component {
           })
             .then(response => response.json())
             .then(count => {
-              this.setState(Object.assign(this.state.user, { entries: count}))
-              // this.setState(Object.assign(this.state.links, { links: [] }))
+              console.log(response)
+              // if (response.status === 200) {
+                this.setState(Object.assign(this.state.user, { entries: count._entries}))
+                this.setState(Object.assign(this.state.links, { links: count._links }))
+                this.loadLinks(count._links)
+              // } //else {
+              //   alert("This FACE has already been detected!")
+              // }
+              
             })
             .catch(console.log)
 
