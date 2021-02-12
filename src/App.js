@@ -36,7 +36,8 @@ const initialState = {
     entries: 0,
     joined: ''
   },
-  links:[]
+  links:[],
+  ranks: []
 }
 
 
@@ -44,6 +45,10 @@ class App extends Component {
   constructor() {
     super();
     this.state = initialState;
+  }
+
+  componentDidMount() {
+    this.loadRanking()
   }
 
   loadUser = (data) => {
@@ -60,6 +65,17 @@ class App extends Component {
   loadLinks = (data) => {
     
     this.setState({links: data})
+  }
+
+  loadRanking = () => {
+    fetch('http://localhost:3333/ranking', {
+        method: 'get',
+        headers: {'Content-Type': 'application/json'}
+      })
+        .then(_response => _response.json())
+        .then(ranking => {
+          this.setState({ranks: ranking})
+    })
   }
 
   calculateFaceLocation = (data) => {
@@ -107,14 +123,14 @@ class App extends Component {
           })
             .then(response => response.json())
             .then(count => {
-              console.log(response)
-              // if (response.status === 200) {
+              console.log(typeof count)
+              if (typeof count === 'object') {
                 this.setState(Object.assign(this.state.user, { entries: count._entries}))
                 this.setState(Object.assign(this.state.links, { links: count._links }))
                 this.loadLinks(count._links)
-              // } //else {
-              //   alert("This FACE has already been detected!")
-              // }
+              } else {
+                this.setState(Object.assign(this.state.user, { entries: count}))
+              }
               
             })
             .catch(console.log)
@@ -143,11 +159,12 @@ class App extends Component {
         />
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
         { route === 'home'
-          ? <div>
-              <Logo />
+          ? <div className="user-i">
+              <Logo/>
               <UserLinks
-                loadLinks={this.loadLinks}
+                // loadLinks={this.loadLinks}
                 userLinks={this.state.links}
+                userRanks={this.state.ranks} 
               />
               <Rank
                 name={this.state.user.name}

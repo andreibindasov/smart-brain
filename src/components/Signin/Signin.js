@@ -1,4 +1,7 @@
 import React from 'react';
+import './Signin.css'
+
+import Logo from '../Logo/Logo'
 
 class Signin extends React.Component {
   constructor(props) {
@@ -8,6 +11,20 @@ class Signin extends React.Component {
       signInPassword: ''
     }
   }
+
+componentDidMount() {
+  // fetch('http://localhost:3333/ranking', {
+  //     method: 'get',
+  //     headers: {'Content-Type': 'application/json'}
+  //   })
+  //     .then(_response => _response.json())
+  //     .then(ranking => {
+  //       // this.props.loadRanking(ranking)
+  //       console.log(ranking)
+  //       this.setState({ranks: ranking})
+  //       console.log(this.state.ranks)
+  //     })
+}
 
   onEmailChange = (event) => {
     this.setState({signInEmail: event.target.value})
@@ -32,16 +49,32 @@ class Signin extends React.Component {
         if (user._user.id) {
           this.props.loadUser(user._user)
           this.props.loadLinks(user._links)
+          
           this.props.onRouteChange('home');
         }
       })
+      // .then(fetch('http://localhost:3333/ranking', {
+      //   method: 'get',
+      //   headers: {'Content-Type': 'application/json'}
+      // })
+      //   .then(_response => _response.json())
+      //   .then(async ranking => {
+      //     await this.props.loadRanking(ranking)
+      //     console.log(ranking)
+      //   })
+
+      // )
+
+      
   }
 
   render() {
     const { onRouteChange } = this.props;
     return (
+      
       <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
         <main className="pa4 black-80">
+          <Logo/>
           <div className="measure">
             <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
               <legend className="f1 fw6 ph0 mh0">Sign In</legend>
@@ -77,6 +110,7 @@ class Signin extends React.Component {
             <div className="lh-copy mt3">
               <p  onClick={() => onRouteChange('register')} className="f6 link dim black db pointer">Register</p>
             </div>
+            
           </div>
         </main>
       </article>
