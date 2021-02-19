@@ -26,7 +26,7 @@ const particlesOptions = {
 const initialState = {
   input: '',
   imageUrl: '',
-  box: {},
+  boxes: [],
   route: 'signin',
   isSignedIn: false,
   user: {
@@ -65,6 +65,7 @@ class App extends Component {
   loadLinks = (data) => {
     
     this.setState({links: data})
+    
   }
 
   loadRanking = () => {
@@ -78,21 +79,23 @@ class App extends Component {
     })
   }
 
-  calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-    const image = document.getElementById('inputimage');
-    const width = Number(image.width);
-    const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+  calculateFaceLocations = (data) => {
+    return data.outputs[0].data.regions.map(face=> {
+      const clarifaiFace = face.region_info.bounding_box
+      const image = document.getElementById('inputimage');
+      const width = Number(image.width);
+      const height = Number(image.height);
+      return {
+        leftCol: clarifaiFace.left_col * width,
+        topRow: clarifaiFace.top_row * height,
+        rightCol: width - (clarifaiFace.right_col * width),
+        bottomRow: height - (clarifaiFace.bottom_row * height)
+      }
+    });
   }
 
-  displayFaceBox = (box) => {
-    this.setState({box: box});
+  displayFaceBoxes = (boxes) => {
+    this.setState({boxes: boxes});
   }
 
   onInputChange = (event) => {
@@ -105,12 +108,15 @@ class App extends Component {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          input: this.state.input
+          input: this.state.input,
+          // boxes: this.state.boxes
         })
       })
       .then(response => response.json())
       .then(response => {
+        this.displayFaceBoxes(this.calculateFaceLocations(response))
         if (response) {
+         
           fetch('http://localhost:3333/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
@@ -118,25 +124,27 @@ class App extends Component {
               id: this.state.user.id,
               input: this.state.input,
               imageUrl: this.state.imageUrl,
-              box: this.state.box
+              boxes: this.state.boxes
             })
           })
             .then(response => response.json())
             .then(count => {
-              console.log(typeof count)
+              // console.log(typeof count)
               if (typeof count === 'object') {
                 this.setState(Object.assign(this.state.user, { entries: count._entries}))
                 this.setState(Object.assign(this.state.links, { links: count._links }))
-                this.loadLinks(count._links)
+                
               } else {
                 this.setState(Object.assign(this.state.user, { entries: count}))
               }
+
+              this.loadLinks(count._links)
               
             })
             .catch(console.log)
 
         }
-        this.displayFaceBox(this.calculateFaceLocation(response))
+        
       })
       .catch(err => console.log(err));
   }
@@ -151,7 +159,7 @@ class App extends Component {
   }
 
   render() {
-    const { isSignedIn, imageUrl, route, box } = this.state;
+    const { isSignedIn, imageUrl, route, boxes } = this.state;
     return (
       <div className="App">
          <Particles className='particles'
@@ -174,7 +182,7 @@ class App extends Component {
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
               />
-              <FaceRecognition box={box} imageUrl={imageUrl} />
+              <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
             </div>
           : (
              route === 'signin'
