@@ -49,7 +49,6 @@ componentDidMount() {
         if (user._user.id) {
           this.props.loadUser(user._user)
           this.props.loadLinks(user._links)
-          
           this.props.onRouteChange('home');
         }
       })

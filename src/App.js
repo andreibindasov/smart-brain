@@ -68,15 +68,17 @@ class App extends Component {
     
   }
 
-  loadRanking = () => {
-    fetch('http://localhost:3333/ranking', {
-        method: 'get',
-        headers: {'Content-Type': 'application/json'}
-      })
-        .then(_response => _response.json())
-        .then(ranking => {
-          this.setState({ranks: ranking})
-    })
+  loadRanking = (data) => {
+    // fetch('http://localhost:3333/ranking', {
+    //     method: 'get',
+    //     headers: {'Content-Type': 'application/json'}
+    //   })
+    //     .then(_response => _response.json())
+    //     .then(ranking => {
+    //       this.setState({ranks: ranking})
+    //       console.log(this.state.ranks)
+    // })
+    this.setState({ranks: data})
   }
 
   calculateFaceLocations = (data) => {
@@ -134,11 +136,12 @@ class App extends Component {
                 this.setState(Object.assign(this.state.user, { entries: count._entries}))
                 this.setState(Object.assign(this.state.links, { links: count._links }))
                 
+                this.loadLinks(count._links)
               } else {
                 this.setState(Object.assign(this.state.user, { entries: count}))
               }
 
-              this.loadLinks(count._links)
+              
               
             })
             .catch(console.log)
@@ -146,6 +149,18 @@ class App extends Component {
         }
         
       })
+      .then(()=>{
+        fetch('http://localhost:3333/ranking', {
+            method: 'get',
+            headers: {'Content-Type': 'application/json'}
+          })
+            .then(_response => _response.json())
+            .then(ranking => {
+              this.loadRanking(ranking)
+              console.log(ranking)
+        })
+      })
+    
       .catch(err => console.log(err));
   }
 
@@ -186,7 +201,7 @@ class App extends Component {
             </div>
           : (
              route === 'signin'
-             ? <Signin loadUser={this.loadUser} loadLinks={this.loadLinks} onRouteChange={this.onRouteChange}/>
+             ? <Signin  loadRanking={this.loadRanking} loadUser={this.loadUser} loadLinks={this.loadLinks} onRouteChange={this.onRouteChange}/>
              : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
             )
         }
