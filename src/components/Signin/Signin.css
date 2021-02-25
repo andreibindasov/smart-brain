@@ -4,6 +4,10 @@ article{
     transition: all .6s;
 }
 
+.hover-black:hover{
+    background-color: #000 !important;
+}
+
 
 /* article main{
     transition: all .3s;
