@@ -46,12 +46,24 @@ componentDidMount() {
       .then(response => response.json())
       .then(user => {
         
-        if (user._user.id) {
-          this.props.loadUser(user._user)
-          this.props.loadLinks(user._links)
+        if (user.user._user.id) {
+          this.props.loadUser(user.user._user)
+          this.props.loadLinks(user.user._links)
           this.props.onRouteChange('home');
         }
       })
+      .then(()=> {
+        fetch('http://localhost:3333/ranking', {
+          method: 'get',
+          headers: {'Content-Type': 'application/json'}
+        })
+          .then(_response => _response.json())
+          .then(ranking => {
+            this.props.loadRanking(ranking)
+            
+      })
+    })
+    .catch(err => alert('user does not exist'))
       // .then(fetch('http://localhost:3333/ranking', {
       //   method: 'get',
       //   headers: {'Content-Type': 'application/json'}

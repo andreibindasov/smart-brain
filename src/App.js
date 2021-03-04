@@ -149,23 +149,24 @@ class App extends Component {
               
               
             })
+            .then(()=>{
+              fetch('http://localhost:3333/ranking', {
+                  method: 'get',
+                  headers: {'Content-Type': 'application/json'}
+                })
+                  .then(_response => _response.json())
+                  .then(ranking => {
+                    this.loadRanking(ranking)
+                    console.log(ranking)
+              })
+            })
+          
             .catch(console.log)
 
         }
         
       })
-      .then(()=>{
-        fetch('http://localhost:3333/ranking', {
-            method: 'get',
-            headers: {'Content-Type': 'application/json'}
-          })
-            .then(_response => _response.json())
-            .then(ranking => {
-              this.loadRanking(ranking)
-              console.log(ranking)
-        })
-      })
-    
+      
       .catch(err => console.log(err));
   }
 
@@ -198,6 +199,7 @@ class App extends Component {
                 <Profile 
                   isProfileOpen={isProfileOpen} 
                   toggleModal={this.toggleModal}
+                  loadUser={this.loadUser}
                   user={user}/>
               </Modal>
             }
