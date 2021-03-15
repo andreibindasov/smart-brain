@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import UserLinks from '../UserLinks/UserLinks'
+// import UserLinks from '../UserLinks/UserLinks'
 import './Profile.css'
 // import './hr.css'
 
@@ -11,6 +11,21 @@ class Profile extends Component {
             age: this.props.user.age,
             phone: this.props.user.phone
         }
+    }
+
+    componentDidMount() {
+        fetch(`http://localhost:3333/profile/${this.props.user.id}`, {
+            method: 'get',
+            headers: {
+                'Content-Type':'application/json',
+                'Authorization': window.sessionStorage.getItem('token')
+            },
+        })
+        .then(response => response.json())
+        .then(_response => {
+            this.props.loadUser(_response)
+        })
+        .catch(console.log)
     }
 
     onFormChange = (event) => {
@@ -32,12 +47,28 @@ class Profile extends Component {
     onProfileUpdate = (data) => {
         fetch(`http://localhost:3333/profile/${this.props.user.id}`, {
             method: 'post',
-            headers: {'Content-Type':'application/json'},
+            headers: {
+                'Content-Type':'application/json',
+                'Authorization': window.sessionStorage.getItem('token')
+            },
             body: JSON.stringify({ formInput: data })
-        }).then(resp => {
-            this.props.toggleModal()
-            this.props.loadUser({ ...this.props.user, ...data })
-        }).catch(console.log)
+        })
+        .then(resp => {
+            if (resp.status === 200 || resp.status === 304) {
+                this.props.toggleModal()
+                this.props.loadUser({ ...this.props.user, ...data })
+
+                fetch('http://localhost:3333/ranking', {
+                    method: 'get',
+                    headers: {'Content-Type': 'application/json'}
+                })
+                    .then(_response => _response.json())
+                    .then(ranking => {
+                    this.props.loadRanking(ranking)
+                })    
+            }
+        })
+        .catch(console.log)
     }
 
     render(){
@@ -66,7 +97,8 @@ class Profile extends Component {
                         onChange = {this.onFormChange}
                         className="pa2 ba w-100"
                         placeholder={user.age}
-                        type="text"
+                        type="number"
+                        min="0"
                         name="user-age"
                         id="age"
                     />

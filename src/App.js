@@ -53,15 +53,58 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.loadRanking()
+    const token = window.sessionStorage.getItem('token')
+    if (token) {
+      fetch('http://localhost:3333/signin', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer ' + token
+          'Authorization': token
+        }
+      })
+        .then(resp => resp.json())
+        .then(data => {
+            if (data && data.id) {
+              fetch(`http://localhost:3333/profile/${data.id}`, {
+                method: 'get',
+                headers: {
+                  'Content-Type': 'application/json',
+                  // 'Authorization': 'Bearer ' + token
+                  'Authorization': token
+                }  
+              })
+                .then(resp => resp.json())
+                .then(user => {
+                    if (user && user.email){
+                      this.loadUser(user)
+                      fetch('http://localhost:3333/ranking', {
+                          method: 'get',
+                          headers: {'Content-Type': 'application/json'}
+                      })
+                        .then(async _response => await _response.json())
+                        .then(ranking => {
+                          this.loadRanking(ranking)
+                        })
+                      this.onRouteChange('home')
+                    }
+                })
+            }
+        })
+        .catch(console.log)
+    }
+    
   }
 
+  
   loadUser = (data) => {
     
     this.setState({user: {
       id: data.id,
       name: data.name,
       email: data.email,
+      age: data.age,
+      phone: data.phone,
       entries: data.entries,
       joined: data.joined
     }})
@@ -87,22 +130,30 @@ class App extends Component {
   }
 
   calculateFaceLocations = (data) => {
-    return data.outputs[0].data.regions.map(face=> {
-      const clarifaiFace = face.region_info.bounding_box
+    if (data && data.outputs) {
       const image = document.getElementById('inputimage');
       const width = Number(image.width);
       const height = Number(image.height);
-      return {
-        leftCol: clarifaiFace.left_col * width,
-        topRow: clarifaiFace.top_row * height,
-        rightCol: width - (clarifaiFace.right_col * width),
-        bottomRow: height - (clarifaiFace.bottom_row * height)
-      }
-    });
+
+      return data.outputs[0].data.regions.map(face=> {
+        const clarifaiFace = face.region_info.bounding_box
+        
+        return {
+          leftCol: clarifaiFace.left_col * width,
+          topRow: clarifaiFace.top_row * height,
+          rightCol: width - (clarifaiFace.right_col * width),
+          bottomRow: height - (clarifaiFace.bottom_row * height)
+        }
+      });
+    }
+
+    return
   }
 
   displayFaceBoxes = (boxes) => {
-    this.setState({boxes: boxes});
+    if (boxes) {
+      this.setState({boxes: boxes});
+    }
   }
 
   onInputChange = (event) => {
@@ -113,7 +164,10 @@ class App extends Component {
     this.setState({imageUrl: this.state.input});
       fetch('http://localhost:3333/imageurl', {
         method: 'post',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': window.sessionStorage.getItem('token')
+        },
         body: JSON.stringify({
           input: this.state.input,
           // boxes: this.state.boxes
@@ -126,7 +180,10 @@ class App extends Component {
          
           fetch('http://localhost:3333/image', {
             method: 'put',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': window.sessionStorage.getItem('token')
+            },
             body: JSON.stringify({
               id: this.state.user.id,
               input: this.state.input,
@@ -134,34 +191,32 @@ class App extends Component {
               boxes: this.state.boxes
             })
           })
-            .then(response => response.json())
-            .then(count => {
-              // console.log(typeof count)
-              if (typeof count === 'object') {
-                this.setState(Object.assign(this.state.user, { entries: count._entries}))
-                this.setState(Object.assign(this.state.links, { links: count._links }))
-                
-                this.loadLinks(count._links)
-              } else {
-                this.setState(Object.assign(this.state.user, { entries: count}))
-              }
+          .then(async response => await response.json())
+          .then(count =>  {
+            // console.log(typeof count)
+            if (typeof count === 'object') {
+              this.setState(Object.assign(this.state.user, { entries: count._entries}))
+              this.setState(Object.assign(this.state.links, { links: count._links }))
+              
+              this.loadLinks(count._links)
+            } else {
+              this.setState(Object.assign(this.state.user, { entries: count}))
+            }
 
-              
-              
-            })
-            .then(()=>{
-              fetch('http://localhost:3333/ranking', {
-                  method: 'get',
-                  headers: {'Content-Type': 'application/json'}
-                })
-                  .then(_response => _response.json())
-                  .then(ranking => {
-                    this.loadRanking(ranking)
-                    console.log(ranking)
+            // console.log(this.state.user.entries)
+          })
+          .then(async ()=>{
+            await fetch('http://localhost:3333/ranking', {
+                method: 'get',
+                headers: {'Content-Type': 'application/json'}
               })
-            })
-          
-            .catch(console.log)
+              .then(async _response => await _response.json())
+              .then(ranking => {
+                this.loadRanking(ranking)
+              })
+          })
+            
+          .catch(console.log)
 
         }
         
@@ -172,6 +227,8 @@ class App extends Component {
 
   onRouteChange = (route) => {
     if (route === 'signout') {
+      window.sessionStorage.removeItem('token')
+      // window.sessionStorage.clear()
       return this.setState(initialState)
     } else if (route === 'home') {
       this.setState({isSignedIn: true})
@@ -200,6 +257,7 @@ class App extends Component {
                   isProfileOpen={isProfileOpen} 
                   toggleModal={this.toggleModal}
                   loadUser={this.loadUser}
+                  loadRanking={this.loadRanking}
                   user={user}/>
               </Modal>
             }
@@ -209,6 +267,7 @@ class App extends Component {
               
               <UserLinks
                 // loadLinks={this.loadLinks}
+                name={this.state.user.name}
                 userLinks={this.state.links}
                 userRanks={this.state.ranks} 
               />
@@ -225,7 +284,7 @@ class App extends Component {
           : (
              route === 'signin'
              ? <Signin  loadRanking={this.loadRanking} loadUser={this.loadUser} loadLinks={this.loadLinks} onRouteChange={this.onRouteChange}/>
-             : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+             : <Register loadRanking={this.loadRanking} loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
             )
         }
       </div>

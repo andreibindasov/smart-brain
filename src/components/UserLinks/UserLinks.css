@@ -9,9 +9,18 @@
 
 .user-link__image {
     box-sizing: border-box;
-    max-width: 4.5rem;
+    max-width: 3rem;
     height: auto;
     border: 1px solid black;
+    transition: all .3s linear;
+    opacity: .6;
+}
+
+.user-link__image:hover {
+    transform: scale(3.6);
+    opacity: 1.0;
+    z-index: 999;
+    
 }
 
 .ranking-table{
@@ -25,6 +34,51 @@
 table{
     border-collapse: collapse;
     table-layout: fixed;
+    position: relative;
+}
+
+
+table, tbody, table thead{
+    display: block;
+}
+
+table tbody{
+    height: 9rem;
+    overflow: auto;
+}
+
+tfoot{
+    border: none;
+}
+
+#borderTop{
+    border-top: 1px solid #390341;
+    position: absolute;
+    width: 15rem;
+}
+
+#scrollable::-webkit-scrollbar{
+    width: .9rem;
+    background-color: rebeccapurple;
+    border-radius: 9px;
+}
+#scrollable::-webkit-scrollbar-thumb{
+    background-color: rgba(181, 145, 216, 0.582);
+    border-radius: 9px;
+}
+#scrollable::-webkit-scrollbar-thumb:hover{
+    background-color: rgba(228, 222, 233, 0.582);
+    border: 1px solid #cc8dcc;
+}
+#scrollable::-webkit-scrollbar-thumb:active{
+    background-color: rgba(246, 244, 248, 0.986);
+    border: 1px solid #cc8dcc;
+}
+#scrollable::-webkit-scrollbar-track{
+    border: 1px solid #cccc;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 0 3px black inset;
+    box-shadow: 0 0 3px black inset;
 }
 
 tr{
@@ -32,7 +86,7 @@ tr{
 }
 
 
-td{
+td, th{
     width: 3rem;
     background: linear-gradient(to right, rgba(48, 44, 44, 0.1), rgba(221, 158, 158, 0.5));
     border: 1px solid purple;
@@ -44,4 +98,51 @@ td{
 .td-name{
     width: 9rem;
     text-align: left;
+}
+
+th {
+    color: purple;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: 300;
+    font-size: .75rem;
+    background: linear-gradient(to right, rgba(240, 237, 237, 0.418), rgba(241, 241, 187, 0.596));
+}
+
+.__show {
+    /* background: rgba(245, 245, 245, 0.753); */
+    background: linear-gradient(-45deg, #cc8dcc, #874894, #702188, #390341 );
+    background-size: 300% 300%;
+    color: rgb(231, 221, 231);
+    font-weight: 600;
+    -webkit-animation: gradientBG 1.5s ease infinite;
+	animation: gradientBG 1.5s ease infinite;
+}
+
+@-webkit-keyframes gradientBG {
+	0% {
+		background-position: 0% 50%;
+        
+	}
+	50% {
+		background-position: 100% 50%;
+        
+	}
+	100% {
+		background-position: 0% 50%;
+        
+	}
+}
+@keyframes gradientBG {
+	0% {
+		background-position: 0% 50%;
+        
+	}
+	50% {
+		background-position: 100% 50%;
+        
+	}
+	100% {
+		background-position: 0% 50%;
+        
+	}
 }

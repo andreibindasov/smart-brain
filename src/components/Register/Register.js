@@ -7,7 +7,9 @@ class Register extends React.Component {
     this.state = {
       email: '',
       password: '',
-      name: ''
+      name: '',
+      phone:'',
+      age:''
     }
   }
 
@@ -19,27 +21,60 @@ class Register extends React.Component {
     this.setState({email: event.target.value})
   }
 
+  onPhoneChange = (event) => {
+    this.setState({phone: event.target.value})
+  }
+
+  onAgeChange = (event) => {
+    this.setState({age: event.target.value})
+  }
+
   onPasswordChange = (event) => {
     this.setState({password: event.target.value})
   }
 
-  onSubmitSignIn = () => {
+  saveAuthTokenInSession = (token) => {
+    window.sessionStorage.setItem('token', token)
+  }
+
+  onSubmitRegister = () => {
     fetch('http://localhost:3333/register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         email: this.state.email,
         password: this.state.password,
-        name: this.state.name
+        name: this.state.name,
+        phone: this.state.phone,
+        age: this.state.age
       })
     })
-      .then(response => response.json())
-      .then(user => {
-        if (user.id) {
-          this.props.loadUser(user)
-          this.props.onRouteChange('home');
-        }
+      .then(response => {
+        response.status !== 200 ? 
+          alert("Something went wrong...") :
+          (
+            response.json()
+            .then(session => {
+              if (session.user.id) {
+                this.saveAuthTokenInSession(session.token)
+                this.props.loadUser(session.user)
+                this.props.onRouteChange('home');
+              }
+            })
+            .then(()=> {
+              fetch('http://localhost:3333/ranking', {
+                method: 'get',
+                headers: {'Content-Type': 'application/json'}
+              })
+                .then(_response => _response.json())
+                .then(ranking => {
+                  this.props.loadRanking(ranking)
+                })    
+            })
+          )
       })
+      .catch(err => console.log(err))
+     
   }
 
   render() {
@@ -69,6 +104,29 @@ class Register extends React.Component {
                   onChange={this.onEmailChange}
                 />
               </div>
+              <div className="mt3">
+                <label className="db fw6 lh-copy f6" htmlFor="user-age">Age</label>
+                <input
+                  className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100 hover-black"
+                  type="number"
+                  min="0"
+                  name="user-age"
+                  id="user-age"
+                  onChange={this.onAgeChange}
+                />
+              </div>
+              <div className="mt3">
+                <label className="db fw6 lh-copy f6" htmlFor="user-phone">Phone</label>
+                <input
+                  className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100 hover-black"
+                  type="text"
+                  name="user-phone"
+                  id="user-phone"
+                  placeholder="XXX-XX-XXXX"
+                  onChange={this.onPhoneChange}
+                />
+              </div>
+              <hr></hr>  
               <div className="mv3">
                 <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
                 <input
@@ -82,7 +140,7 @@ class Register extends React.Component {
             </fieldset>
             <div className="">
               <input
-                onClick={this.onSubmitSignIn}
+                onClick={this.onSubmitRegister}
                 className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib hover-black"
                 type="submit"
                 value="Register"

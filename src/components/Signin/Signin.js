@@ -34,6 +34,10 @@ componentDidMount() {
     this.setState({signInPassword: event.target.value})
   }
 
+  saveAuthTokenInSession = (token) => {
+    window.sessionStorage.setItem('token', token)
+  }
+
   onSubmitSignIn = () => {
     fetch('http://localhost:3333/signin', {
       method: 'post',
@@ -44,25 +48,51 @@ componentDidMount() {
       })
     })
       .then(response => response.json())
-      .then(user => {
+      .then(data => {
         
-        if (user.user._user.id) {
-          this.props.loadUser(user.user._user)
-          this.props.loadLinks(user.user._links)
-          this.props.onRouteChange('home');
+        if (data.user._user.id && data.success === 'true') {
+          this.saveAuthTokenInSession(data.token)
+          
+          // this.props.loadUser(data.user._user)
+          // this.props.loadLinks(data.user._links)
+          // this.props.onRouteChange('home');
+
+          fetch(`http://localhost:3333/profile/${data.user._user.id}`, {
+                method: 'get',
+                headers: {
+                  'Content-Type': 'application/json',
+                  // 'Authorization': 'Bearer ' + token
+                  'Authorization': data.token
+                }  
+          })
+            .then(resp => resp.json())
+            .then(user => {
+                if (user && user.email){
+                  this.props.loadUser(user)
+                  fetch('http://localhost:3333/ranking', {
+                      method: 'get',
+                      headers: {'Content-Type': 'application/json'}
+                  })
+                    .then(async _response => await _response.json())
+                    .then(ranking => {
+                      this.props.loadRanking(ranking)
+                    })
+                  this.props.onRouteChange('home')
+                }
+            })
         }
       })
-      .then(()=> {
-        fetch('http://localhost:3333/ranking', {
-          method: 'get',
-          headers: {'Content-Type': 'application/json'}
-        })
-          .then(_response => _response.json())
-          .then(ranking => {
-            this.props.loadRanking(ranking)
+      // .then(()=> {
+      //   fetch('http://localhost:3333/ranking', {
+      //     method: 'get',
+      //     headers: {'Content-Type': 'application/json'}
+      //   })
+      //     .then(_response => _response.json())
+      //     .then(ranking => {
+      //       this.props.loadRanking(ranking)
             
-      })
-    })
+      //     })
+      // })
     .catch(err => alert('user does not exist'))
       // .then(fetch('http://localhost:3333/ranking', {
       //   method: 'get',
