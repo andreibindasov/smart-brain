@@ -55,7 +55,7 @@ class App extends Component {
   componentDidMount() {
     const token = window.sessionStorage.getItem('token')
     if (token) {
-      fetch('http://localhost:3333/signin', {
+      fetch('http://10.1.10.221:3333/signin', {
         method: 'post',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ class App extends Component {
         .then(resp => resp.json())
         .then(data => {
             if (data && data.id) {
-              fetch(`http://localhost:3333/profile/${data.id}`, {
+              fetch(`http://10.1.10.221:3333/profile/${data.id}`, {
                 method: 'get',
                 headers: {
                   'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ class App extends Component {
                 .then(user => {
                     if (user && user.email){
                       this.loadUser(user)
-                      fetch('http://localhost:3333/ranking', {
+                      fetch('http://10.1.10.221:3333/ranking', {
                           method: 'get',
                           headers: {'Content-Type': 'application/json'}
                       })
@@ -117,7 +117,7 @@ class App extends Component {
   }
 
   loadRanking = (data) => {
-    // fetch('http://localhost:3333/ranking', {
+    // fetch('http://10.1.10.221:3333/ranking', {
     //     method: 'get',
     //     headers: {'Content-Type': 'application/json'}
     //   })
@@ -162,7 +162,7 @@ class App extends Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input});
-      fetch('http://localhost:3333/imageurl', {
+      fetch('http://10.1.10.221:3333/imageurl', {
         method: 'post',
         headers: {
           'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ class App extends Component {
         this.displayFaceBoxes(this.calculateFaceLocations(response))
         if (response) {
          
-          fetch('http://localhost:3333/image', {
+          fetch('http://10.1.10.221:3333/image', {
             method: 'put',
             headers: {
               'Content-Type': 'application/json',
@@ -206,7 +206,7 @@ class App extends Component {
             // console.log(this.state.user.entries)
           })
           .then(async ()=>{
-            await fetch('http://localhost:3333/ranking', {
+            await fetch('http://10.1.10.221:3333/ranking', {
                 method: 'get',
                 headers: {'Content-Type': 'application/json'}
               })

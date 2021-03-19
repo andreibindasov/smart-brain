@@ -13,7 +13,7 @@ class Signin extends React.Component {
   }
 
 componentDidMount() {
-  // fetch('http://localhost:3333/ranking', {
+  // fetch('http://10.1.10.221:3333/ranking', {
   //     method: 'get',
   //     headers: {'Content-Type': 'application/json'}
   //   })
@@ -39,7 +39,7 @@ componentDidMount() {
   }
 
   onSubmitSignIn = () => {
-    fetch('http://localhost:3333/signin', {
+    fetch('http://10.1.10.221:3333/signin', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -57,7 +57,7 @@ componentDidMount() {
           // this.props.loadLinks(data.user._links)
           // this.props.onRouteChange('home');
 
-          fetch(`http://localhost:3333/profile/${data.user._user.id}`, {
+          fetch(`http://10.1.10.221:3333/profile/${data.user._user.id}`, {
                 method: 'get',
                 headers: {
                   'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ componentDidMount() {
             .then(user => {
                 if (user && user.email){
                   this.props.loadUser(user)
-                  fetch('http://localhost:3333/ranking', {
+                  fetch('http://10.1.10.221:3333/ranking', {
                       method: 'get',
                       headers: {'Content-Type': 'application/json'}
                   })
@@ -83,7 +83,7 @@ componentDidMount() {
         }
       })
       // .then(()=> {
-      //   fetch('http://localhost:3333/ranking', {
+      //   fetch('http://10.1.10.221:3333/ranking', {
       //     method: 'get',
       //     headers: {'Content-Type': 'application/json'}
       //   })
@@ -94,7 +94,7 @@ componentDidMount() {
       //     })
       // })
     .catch(err => alert('user does not exist'))
-      // .then(fetch('http://localhost:3333/ranking', {
+      // .then(fetch('http://10.1.10.221:3333/ranking', {
       //   method: 'get',
       //   headers: {'Content-Type': 'application/json'}
       // })
